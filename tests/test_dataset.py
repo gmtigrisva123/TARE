@@ -137,6 +137,31 @@ def test_a_gap_leaves_an_empty_bin():
     assert [path for _, path in kept] == ["a.png", "c.png"]
 
 
+def test_sampling_is_idempotent():
+    """Sampling the kept frames again returns the same frames.
+
+    The Colab extraction step keeps only the first frame of each bin and
+    throws the rest away, then the loader runs the same rule over what is
+    left. These agree because each kept frame still starts its own bin and
+    the session still begins at the same instant, so pre-filtering the
+    images does not change which frames get scored, nor how many bins come
+    up empty.
+    """
+    rng = __import__("random").Random(0)
+    clock, relative = 0.0, []
+    for i in range(400):
+        clock += rng.choice([0.1, 0.1, 0.1, 0.3, 1.6, 2.9])   # with dropouts
+        relative.append((clock, f"{i}.png"))
+
+    once, empty_once, bins_once = dataset._sample_bins(relative)
+    twice, empty_twice, bins_twice = dataset._sample_bins(once)
+
+    assert once == twice
+    assert empty_once == empty_twice
+    assert bins_once == bins_twice
+    assert empty_once, "the dropouts should leave some bin empty"
+
+
 # --- session order --------------------------------------------------------
 
 def test_sessions_order_by_clock_not_by_activity_number():
