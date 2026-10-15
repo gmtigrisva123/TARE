@@ -122,7 +122,13 @@ def drift_interval(clean_predictions, perturbed_predictions, frames, students,
     rows = np.asarray(rows)
 
     change = np.abs(perturbed_predictions - clean_predictions)
-    per_frame = np.nanmean(change, axis=0)
+    # A frame whose landmarks vanished under the warp has no prediction in
+    # any seed, so its column is all NaN and the mean of it is undefined.
+    # Those frames are dropped below rather than warned about one by one.
+    with np.errstate(invalid="ignore"):
+        present = np.isfinite(change).any(axis=0)
+        per_frame = np.full(change.shape[1], np.nan)
+        per_frame[present] = np.nanmean(change[:, present], axis=0)
 
     rows_of = {}
     for student in students:

@@ -405,7 +405,7 @@ def main():
 
     path = os.path.join(args.out_dir, f"audit_{args.regressor}.json")
     with open(path, "w") as handle:
-        json.dump(results, handle, indent=2, default=_jsonable)
+        json.dump(_stringify_keys(results), handle, indent=2, default=_jsonable)
     print(f"Wrote {path}")
 
 
@@ -414,6 +414,27 @@ def _serialise_zoom(table):
     for (variant, c, delta), value in table.items():
         out.setdefault(variant, {})[f"c={c:.4f},delta={delta:+.0f}"] = value
     return out
+
+
+def _stringify_keys(obj):
+    """Make a structure writable as JSON.
+
+    The equalized-odds tables are keyed by the (label class, group) cell, and
+    JSON only takes string keys, so a tuple key becomes its parts joined by a
+    bar: the cell (3, 1) is written "3|1". Everything else is left alone.
+    """
+    if isinstance(obj, dict):
+        out = {}
+        for key, value in obj.items():
+            if isinstance(key, tuple):
+                key = "|".join(str(part) for part in key)
+            elif not isinstance(key, (str, int, float, bool)) and key is not None:
+                key = str(key)
+            out[key] = _stringify_keys(value)
+        return out
+    if isinstance(obj, (list, tuple)):
+        return [_stringify_keys(item) for item in obj]
+    return obj
 
 
 def _jsonable(obj):

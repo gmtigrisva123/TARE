@@ -193,3 +193,34 @@ def test_sessions_order_by_clock_not_by_activity_number():
     by_clock = sorted(config.ACTIVITIES, key=lambda a: starts[a])
     assert by_clock == ["03", "08", "05"]
     assert by_clock[0] == config.LECTURE_ACTIVITY
+
+
+# --- writing the results out ----------------------------------------------
+
+def test_tuple_keys_survive_json():
+    """The equalized-odds tables are keyed by (label class, group).
+
+    JSON takes only string keys, and json.dump's `default` hook covers
+    values and not keys, so those cells have to be rewritten before the
+    results are saved. This failed once after a full run had already
+    finished computing, which cost the whole run.
+    """
+    import json
+    from run_audit import _stringify_keys
+
+    results = {
+        "variants": {"RAW": {"P_iod": {"eo_reg": {
+            "cell_means": {(1, 1): 0.3, (3, 2): 0.5},
+            "cell_sizes": {(1, 1): {"frames": 10, "students": 5}},
+            "excluded_cells": [(3, 3)],
+        }}}},
+        "groups": {"P_iod": {"02": 1}},
+    }
+    text = json.dumps(_stringify_keys(results))
+    back = json.loads(text)
+
+    cells = back["variants"]["RAW"]["P_iod"]["eo_reg"]
+    assert cells["cell_means"] == {"1|1": 0.3, "3|2": 0.5}
+    assert cells["cell_sizes"]["1|1"]["students"] == 5
+    assert cells["excluded_cells"] == [[3, 3]]
+    assert back["groups"]["P_iod"] == {"02": 1}

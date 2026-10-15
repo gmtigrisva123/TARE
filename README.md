@@ -162,7 +162,7 @@ supplied in a file.
 
 ---
 
-## 📥 What you still have to supply
+## 📥 What I still have to supply
 
 **The data itself.** Unpack each `subject_NN.zip` into a directory named
 after it, so the tree reads
@@ -177,25 +177,83 @@ is written that way. Two constraints from the paper narrowed the choices: an
 angle has to survive a scaling and a translation for Proposition 1 to hold,
 and the face center has to be a function of the eleven keypoints for
 Remark 3 to be the algebraic identity it claims to be. Read those four
-docstrings and confirm they say what you meant.
+docstrings and confirm they say what the authors meant.
 
 ---
 
 ## 📝 Things to reconcile in the paper
 
-**A6 names the wrong group.** See above. One word.
+Grouped by whether the paper contradicts the release or only leaves
+something open. Line numbers are from the PDF.
 
-**Table III gives 8.7 frames per second.** The sessions measure 7.2 to 8.1,
-and the figure is descriptive rather than a parameter, since nothing
-computes with it. `config.NOMINAL_FRAME_RATE` records it and
-`report_sessions` prints the measured range next to it.
+### ❌ Contradicts the release, so it has to change
 
-**B4 assumes a fixed panel of four experts.** Equation (7) writes y^(r) as
-though expert r were one person across the cohort. The labeler numbering
-changes between students, so position r means the r-th labeler file of that
-session. The quantity B4 measures, one rater against the mean of the other
-three, is still well defined per frame, but the wording implies more than
-the data holds.
+**A6 and III-E name group 01** (lines 1188, 1169). The 16-student cohort
+with activities 03, 05 and 08 is group_02: group_01 gives 19 students and
+group_03 gives 15. The sentence "all of them have a lecture session, so
+N_lec = 16" also holds only for group_02.
+
+**The frame rate is given as about 8.7** (line 1152 and Table III). Sessions
+run exactly 300 s and hold 2167 to 2498 images, an effective 7.2 to 8.3
+frames per second, varying by session. The nominal interval is 100 ms and
+the camera drops frames.
+
+**B4 in (7) assumes a fixed panel of four experts.** It writes y^(r) for
+r in 1 to 4 as though expert r were one person across the cohort. The
+labeler numbering changes between students: one is rated by labelers 01 to
+04 and another by 01, 02, 03 and 05. Position r is the r-th labeler file of
+that session. What B4 measures is still well defined per frame, but the
+wording implies more than the data holds.
+
+### ⏳ Marked [PENDING] and still open
+
+**Line 721, the four feature definitions.** The anatomical descriptions you
+supplied are implemented in `tare/geometry.py` and need writing into the
+paper.
+
+**Line 776, the median window and lambda.** Alignment is centered. The share
+of frames in which each branch of (4) is active comes out of a run and is
+printed by `scripts/report.py`. An anthropometric source for lambda = 4.5 is
+still needed and is not something the data can supply.
+
+**Line 615, the r = 0.99 and r = 0.49 comparison** against the DIPSER
+metadata: the frame count, the type of correlation, and the manual check of
+shoulder width.
+
+**Line 1163, the five-vote majority label.** The paper says no measure in
+Section III uses it. Cutting the sentence is simpler than defining the
+analysis.
+
+**Line 1200, versions and hardware.** Run on MediaPipe 0.10.14,
+scikit-learn 1.9.1, NumPy 2.4.6, OpenCV 5.0.0, on a MacBookPro13,1.
+
+### ➕ Worth adding, from what the data turned out to be
+
+**How t_i is determined.** Image names carry a wall-clock timestamp and the
+bins are read from them. This is why dropped frames produce exactly the
+empty bins III-E says to flag as missing.
+
+**The empty-bin rate.** 204 of 9597 bins, 2.1%.
+
+**The recording order is 03, then 08, then 05.** Numeric order is not
+recording order, and (6) calibrates on the earliest in time, which is 03.
+A reader who assumes 05 comes second will misread which session C_s is cut
+from.
+
+**How the ratings are filled.** Only attention change points are read, since
+a record may carry only an emotion, and the fill runs to the end of the
+session rather than to the last change point. One labeler writes a single
+entry at second zero for a five-minute session.
+
+**The label distribution.** y runs from 2.00 to 4.75 with nothing below
+2.00, and class 3 of Table III holds 12.4% of frames. 80.4% of frames exceed
+tau = 2.5. III-C6c cautions about a threshold the predictor seldom crosses;
+this is the opposite case, and the rates reported beside the gaps are what
+show it.
+
+**N5(i).** Not wrong, but "a window of five frames" reads as five recorded
+frames unless the reader carries III-C1's "sampled frame" down to (4).
+Saying "five sampled frames, spanning 7.5 s" removes the ambiguity.
 
 ---
 
