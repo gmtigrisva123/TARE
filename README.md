@@ -1,39 +1,91 @@
-# TARE
+<p align="center">
+  <img src="figures/TARE_cover_v8_transparent.png" width="820" alt="TARE">
+</p>
 
-An implementation of the methodology in *Apparent Scale Bias in
-Landmark-Based Classroom Student Engagement Estimation: A Controlled,
-Demographic-Unaware Fairness Audit*. Every quantity comes
-from Section III and Table III of that paper. Nothing has been added to the
-method and nothing has been left out of it.
+<h2 align="center"><b>TARE (Two-stage Apparent-scale Removal for Engagement)</b></h2>
 
-## What this does and does not contain
+<p align="center">
+  This repo is the source code of the implementation in the paper "Apparent Scale Bias in Landmark-Based Classroom Student Engagement Estimation: A Controlled, Demographic-Unaware Fairness Audit". The source code and all quantity come from Section III and Table III in the paper.
+</p>
 
-No frame, landmark, rating or result is generated here. The code reads the
-DIPSER release off disk and stops with an error when something it needs is
-missing, so a missing dataset gives a failed run and never a filled-in one.
-DIPSER frames are not redistributed, per the paper's data disclosure.
+<p align="center">
+  <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white" alt="Python 3.11"></a>
+  <a href="requirements.txt"><img src="https://img.shields.io/badge/MediaPipe-0.10.14-00A4A6?logo=google&logoColor=white" alt="MediaPipe 0.10.14"></a>
+  <a href="requirements.txt"><img src="https://img.shields.io/badge/scikit--learn-1.9.1-F7931E?logo=scikitlearn&logoColor=white" alt="scikit-learn 1.9.1"></a>
+  <a href="requirements.txt"><img src="https://img.shields.io/badge/NumPy-2.4.6-013243?logo=numpy&logoColor=white" alt="NumPy 2.4.6"></a>
+  <a href="tests/"><img src="https://img.shields.io/badge/Tests-47%20passed-brightgreen?logo=pytest&logoColor=white" alt="47 tests passed"></a>
+  <a href="#-what-the-real-files-settled"><img src="https://img.shields.io/badge/Dataset-DIPSER%20group__02-E9B23C" alt="DIPSER group_02"></a>
+  <a href="https://github.com/gmtigrisva123/TEAR"><img src="https://img.shields.io/badge/GitHub-TEAR-181717?logo=github" alt="GitHub"></a>
+</p>
+
+<p align="center">
+<a href="#-layout" title="Layout"><img src="figures/nav/02.png" width="162" alt="Layout"></a>
+<a href="#-how-to-run" title="How to run"><img src="figures/nav/03.png" width="187" alt="How to run"></a>
+<a href="#-traceability" title="Traceability"><img src="figures/nav/08.png" width="196" alt="Traceability"></a>
+</p>
+
+<p align="center">
+<a href="#-what-the-real-files-settled" title="What the real files settled"><img src="figures/nav/04.png" width="239" alt="What the real files settled"></a>
+<a href="#-what-you-still-have-to-supply" title="What you still have to supply"><img src="figures/nav/05.png" width="244" alt="What you still have to supply"></a>
+<a href="#-not-implemented-on-purpose" title="Not implemented, on purpose"><img src="figures/nav/09.png" width="255" alt="Not implemented, on purpose"></a>
+</p>
+
+<p align="center">
+<a href="#-what-this-does-and-does-not-contain" title="What this does and does not contain"><img src="figures/nav/01.png" width="306" alt="What this does and does not contain"></a>
+<a href="#-things-to-reconcile-in-the-paper" title="Things to reconcile in the paper"><img src="figures/nav/06.png" width="308" alt="Things to reconcile in the paper"></a>
+<a href="#-three-readings-worth-knowing-about" title="Three readings worth knowing about"><img src="figures/nav/07.png" width="318" alt="Three readings worth knowing about"></a>
+</p>
+
+<p align="center">
+  <img src="figures/nav/camera.png" width="210" alt="">
+</p>
+
+<p align="center">
+  <img src="figures/pipeline.png" width="100%" alt="TARE pipeline">
+</p>
+
+---
+
+## 🔍 What this does and does not contain
+
+> No frame, landmark, rating or result is generated here. The code reads the
+> DIPSER release off disk and stops with an error when something it needs is
+> missing, so a missing dataset gives a failed run and never a filled-in one.
+> DIPSER frames are not redistributed, per the paper's data disclosure.
 
 The unit tests in `tests/` check Proposition 1, Proposition 2 and Remark 3.
 Those are identities that hold for any numbers, and Remark 3 calls the
 keypoint-level case a unit test itself, so they are verified on arbitrary
 arrays. No test produces a research result.
 
-## Layout
+---
 
-    tare/config.py      Table III, and where the DIPSER files sit
-    tare/dataset.py     III-E: 1.5 s sampling, the rating fill, the target (1)
-    tare/landmarks.py   III-B1, III-C2: MediaPipe, z_i and u_i
-    tare/geometry.py    (2) and the references of III-B2
-    tare/features.py    III-C4: RAW, TARE-S, TARE-FULL, (4) to (6)
-    tare/models.py      III-C5: regressors, subject-wise folds, B1 to B4
-    tare/audit.py       III-C6: ERROR, GAP, LEAK, (8) to (16)
-    tare/zoom.py        III-C7, III-C8: the perturbations, (17) to (21)
-    tare/stats.py       III-C9: bootstrap, sign-flip, Holm, equivalence
-    run_audit.py        Algorithm 1, line by line
+## 🗂️ Layout
 
-## Running it
+<table>
+<tr><td width="26%"><code>tare/config.py</code></td><td>Table III, and where the DIPSER files sit</td></tr>
+<tr><td><code>tare/dataset.py</code></td><td>III-E: 1.5 s sampling, the rating fill, the target (1)</td></tr>
+<tr><td><code>tare/landmarks.py</code></td><td>III-B1, III-C2: MediaPipe, z_i and u_i</td></tr>
+<tr><td><code>tare/geometry.py</code></td><td>(2) and the references of III-B2</td></tr>
+<tr><td><code>tare/features.py</code></td><td>III-C4: RAW, TARE-S, TARE-FULL, (4) to (6)</td></tr>
+<tr><td><code>tare/models.py</code></td><td>III-C5: regressors, subject-wise folds, B1 to B4</td></tr>
+<tr><td><code>tare/audit.py</code></td><td>III-C6: ERROR, GAP, LEAK, (8) to (16)</td></tr>
+<tr><td><code>tare/zoom.py</code></td><td>III-C7, III-C8: the perturbations, (17) to (21)</td></tr>
+<tr><td><code>tare/stats.py</code></td><td>III-C9: bootstrap, sign-flip, Holm, equivalence</td></tr>
+<tr><td><code>run_audit.py</code></td><td>Algorithm 1, line by line</td></tr>
+</table>
 
-    python3.11 -m venv .venv && ./.venv/bin/pip install -r requirements.txt
+<p align="center">
+  <img src="figures/two_stage.png" width="100%" alt="RAW, TARE-S and TARE-FULL">
+</p>
+
+---
+
+## 🚀 How to run
+
+```bash
+python3.11 -m venv .venv && ./.venv/bin/pip install -r requirements.txt
+```
 
 Download `pose_landmarker.task` and `face_landmarker.task` from the
 MediaPipe model index. Section III-B1 requires a fresh extraction, so the
@@ -41,22 +93,28 @@ pose annotations DIPSER ships are never read.
 
 Inspect the labels before the first full run:
 
-    ./.venv/bin/python run_audit.py --dipser-root PATH \
-        --pose-task pose_landmarker.task --face-task face_landmarker.task \
-        --inspect-labels
+```bash
+./.venv/bin/python run_audit.py --dipser-root PATH \
+    --pose-task pose_landmarker.task --face-task face_landmarker.task \
+    --inspect-labels
+```
 
 Check the layout before anything else, because the file patterns in
 `DipserLayout` are settings rather than facts:
 
-    ./.venv/bin/python run_audit.py --dipser-root PATH \
-        --pose-task pose_landmarker.task --face-task face_landmarker.task \
-        --describe-only
+```bash
+./.venv/bin/python run_audit.py --dipser-root PATH \
+    --pose-task pose_landmarker.task --face-task face_landmarker.task \
+    --describe-only
+```
 
 Then run the audit:
 
-    ./.venv/bin/python run_audit.py --dipser-root PATH \
-        --pose-task pose_landmarker.task --face-task face_landmarker.task \
-        --session-order sessions.csv --regressor gb
+```bash
+./.venv/bin/python run_audit.py --dipser-root PATH \
+    --pose-task pose_landmarker.task --face-task face_landmarker.task \
+    --session-order sessions.csv --regressor gb
+```
 
 `--regressor ridge` runs the other family of III-C5. Both use the Table III
 settings for every variant, so a difference between variants comes from the
@@ -64,10 +122,16 @@ features. The extraction pass is cached, so a rerun of the audit does not
 repeat it; the ZOOM branches re-extract from warped images and are not
 cached, which is where the time goes.
 
-## What the real files settled
+---
+
+## 📊 What the real files settled
 
 The release was inspected before any of this was wired up, and four things
 Section III leaves open are now decided by the data rather than by a guess.
+
+<p align="center">
+  <img src="figures/dataset.png" width="100%" alt="What the release holds">
+</p>
 
 **Which group.** Assumption A6 names the 16 students of "group 01". In the
 release, group_01 has 19 students with all three activities and group_03 has
@@ -96,7 +160,9 @@ order of recording. Equation (6) wants the earliest session, which is
 activity 03, and the order is derived from the timestamps rather than
 supplied in a file.
 
-## What you still have to supply
+---
+
+## 📥 What you still have to supply
 
 **The data itself.** Unpack each `subject_NN.zip` into a directory named
 after it, so the tree reads
@@ -113,7 +179,9 @@ and the face center has to be a function of the eleven keypoints for
 Remark 3 to be the algebraic identity it claims to be. Read those four
 docstrings and confirm they say what you meant.
 
-## Things to reconcile in the paper
+---
+
+## 📝 Things to reconcile in the paper
 
 **A6 names the wrong group.** See above. One word.
 
@@ -129,7 +197,9 @@ session. The quantity B4 measures, one rater against the mean of the other
 three, is still well defined per frame, but the wording implies more than
 the data holds.
 
-## Three readings worth knowing about
+---
+
+## 🧠 Three readings worth knowing about
 
 These are places where the paper is silent and the code had to settle on
 something. Each is marked in the source.
@@ -147,9 +217,15 @@ Out-of-fold leakage predictions are averaged over the three seeds before
 R-squared is computed in (15), following the way (8) averages over seeds
 inside each student.
 
-## Traceability
+---
+
+## 🧭 Traceability
 
 Every numbered item of Section III and where it lives.
+
+<p align="center">
+  <img src="figures/audit.png" width="100%" alt="ERROR, GAP, LEAK and ZOOM">
+</p>
 
 | Paper | Where |
 | --- | --- |
@@ -187,7 +263,9 @@ over students, with a student's group carried along. The primary family of
 ten comparisons gets the sign-flip test on ERROR, the bootstrap share for
 the gap changes, and Holm at 0.05.
 
-## Not implemented, on purpose
+---
+
+## 🚫 Not implemented, on purpose
 
 Equation (3), the weak-perspective decomposition of a pixel length into
 scale, true length and foreshortening, has no code. III-C3 says the model
