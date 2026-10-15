@@ -211,7 +211,7 @@ def sample_held_out_frames(frames, students, seed, n_frames=config.N_WARPED_FRAM
 
 
 def image_level_drift(frames, students, session_order, regressor_kind,
-                      extractor, read_image):
+                      batch_extract):
     """Drift with the image warped and the landmark extractor rerun.
 
     This version also contains detector noise, interpolation effects and
@@ -229,9 +229,10 @@ def image_level_drift(frames, students, session_order, regressor_kind,
             for rows in sample_held_out_frames(frames, students, seed).values():
                 selected.update(rows)
 
-        for idx in sorted(selected):
-            warped = warp_image(read_image(frames[idx].image_path), c, delta)
-            reextracted[idx] = extractor(warped)
+        jobs = [(idx, frames[idx].image_path, c, delta)
+                for idx in sorted(selected)]
+        for idx, landmarks in batch_extract(jobs).items():
+            reextracted[idx] = landmarks
 
         perturbed_frames = _replace_landmarks(frames, reextracted)
         perturbed_features, _ = features.build_all(perturbed_frames, session_order)
@@ -278,25 +279,32 @@ def draw_zoom_factors(students, seed):
     return dict(zip(sorted(students), draws.tolist()))
 
 
-def warp_cohort(frames, factor_of_student, extractor, read_image):
+def warp_cohort(frames, factor_of_student, batch_extract):
     """Warp every frame of each student by that student's factor and re-extract.
 
     Used by both parts of III-C8: with one common factor for the
     dose-response curve of (20), and with independent factors for (21).
+
+    `batch_extract` takes (index, path, c, delta) jobs and returns a map from
+    index to z_i, so the whole cohort goes out in one call and can be spread
+    over several processes.
     """
-    landmark_list = []
-    for frame in frames:
+    jobs = []
+    for index, frame in enumerate(frames):
         c = factor_of_student.get(frame.student)
-        if c is None or not frame.landmarks.usable:
-            landmark_list.append(frame.landmarks)
-            continue
-        warped = warp_image(read_image(frame.image_path), c, 0.0)
-        landmark_list.append(extractor(warped))
+        if c is not None and frame.landmarks.usable:
+            jobs.append((index, frame.image_path, c, 0.0))
+
+    extracted = batch_extract(jobs)
+    landmark_list = [
+        extracted.get(index, frame.landmarks)
+        for index, frame in enumerate(frames)
+    ]
     return _replace_landmarks(frames, landmark_list)
 
 
 def dose_response(frames, students, session_order, regressor_kind,
-                  extractor, read_image):
+                  batch_extract, on_level=None):
     """Gamma of (20), with one common factor c applied to all students.
 
     Gamma(c) is the mean over students of e_s(c) minus e_s(1), so it is
@@ -319,7 +327,7 @@ def dose_response(frames, students, session_order, regressor_kind,
 
     for c in config.zoom_levels():
         common = {s: c for s in students}
-        warped_frames = warp_cohort(frames, common, extractor, read_image)
+        warped_frames = warp_cohort(frames, common, batch_extract)
         warped_features, _ = features.build_all(warped_frames, session_order)
 
         for variant in config.VARIANTS:
@@ -333,6 +341,8 @@ def dose_response(frames, students, session_order, regressor_kind,
             }
             per_student[variant][c] = gains
             curves[variant][c] = float(np.nanmean(list(gains.values())))
+        if on_level:
+            on_level(c, curves, per_student, baseline_error)
 
     fits = {}
     for variant in config.VARIANTS:
@@ -377,8 +387,9 @@ def log_linear_fit(curve):
 
 
 def perturbed_cohort(frames, students, session_order, regressor_kind,
-                     extractor, read_image, proxies,
-                     n_replicates=config.N_REPLICATES):
+                     batch_extract, proxies,
+                     n_replicates=config.N_REPLICATES,
+                     start_at=0, on_replicate=None):
     """Equation (21) and the matching gaps, over n_rep replicates.
 
     Each replicate draws an independent factor per student, warps every
@@ -392,9 +403,9 @@ def perturbed_cohort(frames, students, session_order, regressor_kind,
     clean_features, _ = features.build_all(frames, session_order)
     replicates = []
 
-    for b in range(n_replicates):
+    for b in range(start_at, n_replicates):
         factors = draw_zoom_factors(students, seed=1000 + b)
-        warped_frames = warp_cohort(frames, factors, extractor, read_image)
+        warped_frames = warp_cohort(frames, factors, batch_extract)
         warped_features, _ = features.build_all(warped_frames, session_order)
 
         entry = {"replicate": b, "factors": factors, "variants": {}}
@@ -427,6 +438,8 @@ def perturbed_cohort(frames, students, session_order, regressor_kind,
                 }
             entry["variants"][variant] = record
         replicates.append(entry)
+        if on_replicate:
+            on_replicate(b, entry)
     return {"replicates": replicates,
             "distribution": replicate_distribution(replicates, proxies)}
 

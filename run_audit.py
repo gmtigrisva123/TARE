@@ -18,10 +18,12 @@ import argparse
 import json
 import os
 import pickle
+import time
 
 import numpy as np
 
-from tare import audit, config, dataset, features, landmarks, models, stats, zoom
+from tare import (audit, config, dataset, features, landmarks, models,
+                  parallel, stats, zoom)
 
 
 def parse_args():
@@ -51,6 +53,13 @@ def parse_args():
                              "DIPSER stores five evaluations per student and "
                              "(1) averages the four experts only, so run this "
                              "before trusting the target.")
+    parser.add_argument("--workers", type=int, default=1,
+                        help="Processes for the ZOOM re-extraction. The "
+                             "parameters do not change; only how many frames "
+                             "are warped at once.")
+    parser.add_argument("--checkpoint", default="outputs/rq3_progress.pkl",
+                        help="Where RQ3 saves its progress, so an interrupted "
+                             "run resumes instead of starting over.")
     parser.add_argument("--skip-image-zoom", action="store_true",
                         help="Leave out the branches that rerun the extractor "
                              "on warped images. Marks the run as partial.")
@@ -372,27 +381,7 @@ def main():
     )
 
     if not args.skip_image_zoom:
-        # Line 16.
-        results["zoom_image"] = _serialise_zoom(
-            zoom.image_level_drift(
-                frames, students, order, args.regressor, extractor, read_image
-            )
-        )
-        # Lines 17 to 19.
-        curve = zoom.dose_response(
-            frames, students, order, args.regressor, extractor, read_image
-        )
-        results["dose_response"] = {"curve": curve["curve"], "fit": curve["fit"]}
-        cohort = zoom.perturbed_cohort(
-            frames, students, order, args.regressor, extractor, read_image,
-            results["proxies"],
-        )
-        # The distribution over b is what III-C8 reports; the per-replicate
-        # student errors stay out of the JSON to keep it readable.
-        results["perturbed_cohort"] = cohort["distribution"]
-        results["perturbed_cohort_factors"] = [
-            r["factors"] for r in cohort["replicates"]
-        ]
+        run_rq3(results, frames, students, order, args)
     else:
         print("Image-level ZOOM and per-student scaling were skipped. "
               "This run does not cover RQ3.")
@@ -407,6 +396,106 @@ def main():
     with open(path, "w") as handle:
         json.dump(_stringify_keys(results), handle, indent=2, default=_jsonable)
     print(f"Wrote {path}")
+
+
+def load_checkpoint(path):
+    if path and os.path.exists(path):
+        with open(path, "rb") as handle:
+            saved = pickle.load(handle)
+        print(f"  resuming from {path}: {sorted(saved)}")
+        return saved
+    return {}
+
+
+def save_checkpoint(path, state):
+    if not path:
+        return
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+    with open(path + ".tmp", "wb") as handle:
+        pickle.dump(state, handle)
+    os.replace(path + ".tmp", path)
+
+
+def run_rq3(results, frames, students, order, args):
+    """Lines 16 to 19: the two ZOOM protocols that answer RQ3.
+
+    This is where the time goes. Every frame is warped and the landmark
+    extractor is run again, which at the Table III parameters is about a
+    quarter of a million extractions, so the work is spread over processes
+    and each phase is saved as it finishes. An interrupted run picks up at
+    the next phase rather than starting over.
+    """
+    state = load_checkpoint(args.checkpoint)
+    started = time.time()
+
+    def progress(done, total):
+        rate = done / max(time.time() - started, 1)
+        print(f"      {done}/{total} frames, {rate:.1f}/s, "
+              f"{(total - done) / max(rate, 0.01) / 60:.0f} min left",
+              flush=True)
+
+    with parallel.BatchExtractor(args.pose_task, args.face_task,
+                                 workers=args.workers,
+                                 progress=progress) as batch_extract:
+        # Line 16.
+        if "zoom_image" in state:
+            print("  image-level ZOOM: already done")
+        else:
+            print("  image-level ZOOM", flush=True)
+            state["zoom_image"] = _serialise_zoom(zoom.image_level_drift(
+                frames, students, order, args.regressor, batch_extract
+            ))
+            save_checkpoint(args.checkpoint, state)
+
+        # Lines 17 to 19, first with one common factor for the curve of (20).
+        if "dose_response" in state:
+            print("  dose-response: already done")
+        else:
+            print("  dose-response", flush=True)
+
+            def on_level(c, curves, per_student, baseline):
+                print(f"    zoom {c:.4f} done", flush=True)
+                save_checkpoint(args.checkpoint, dict(
+                    state, dose_partial={"curve": curves}
+                ))
+
+            curve = zoom.dose_response(
+                frames, students, order, args.regressor, batch_extract,
+                on_level=on_level,
+            )
+            state["dose_response"] = {"curve": curve["curve"],
+                                      "fit": curve["fit"]}
+            state.pop("dose_partial", None)
+            save_checkpoint(args.checkpoint, state)
+
+        # Then with an independent factor per student.
+        done_replicates = state.get("replicates", [])
+        if len(done_replicates) >= config.N_REPLICATES:
+            print(f"  per-student scaling: all {config.N_REPLICATES} replicates done")
+        else:
+            print(f"  per-student scaling, from replicate "
+                  f"{len(done_replicates)}", flush=True)
+
+            def on_replicate(b, entry):
+                done_replicates.append(entry)
+                state["replicates"] = done_replicates
+                save_checkpoint(args.checkpoint, state)
+                print(f"    replicate {b + 1}/{config.N_REPLICATES} done",
+                      flush=True)
+
+            zoom.perturbed_cohort(
+                frames, students, order, args.regressor, batch_extract,
+                results["proxies"], start_at=len(done_replicates),
+                on_replicate=on_replicate,
+            )
+
+    results["zoom_image"] = state["zoom_image"]
+    results["dose_response"] = state["dose_response"]
+    replicates = state.get("replicates", [])
+    results["perturbed_cohort"] = zoom.replicate_distribution(
+        replicates, results["proxies"]
+    )
+    results["perturbed_cohort_factors"] = [r["factors"] for r in replicates]
 
 
 def _serialise_zoom(table):
