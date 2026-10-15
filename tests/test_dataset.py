@@ -83,6 +83,20 @@ def test_forward_fill_then_back_fill():
     assert filled[0] == 3.0 and filled[1] == 3.0      # back-filled head
 
 
+def test_fill_runs_to_the_end_of_the_session():
+    """A rating holds until the session ends, not until the last change point.
+
+    One labeler in the cohort writes a single entry at second zero for a
+    five-minute session, meaning they never revised their rating. Stopping
+    the fill at the last change point would leave the tail of the session
+    unrated, and since (1) needs all four experts that would drop those
+    frames for everyone.
+    """
+    filled = dataset._fill_forward_then_back({0: 3.0}, last_second=298)
+    assert len(filled) == 299
+    assert filled[298] == 3.0
+
+
 def test_a_later_change_in_the_same_second_wins(tmp_path):
     path = tmp_path / "labeler_01.json"
     path.write_text(json.dumps([

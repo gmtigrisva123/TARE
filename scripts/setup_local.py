@@ -19,6 +19,7 @@ which is what --dipser-root points at.
 import argparse
 import os
 import sys
+import shutil
 import urllib.request
 import zipfile
 
@@ -39,7 +40,9 @@ MODELS = {
 def parse_args():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--zips", required=True,
-                        help="Directory holding the three sampled_*.zip files.")
+                        help="Directory holding the three sampled_*.zip files, "
+                             "or the wrapper archives Drive hands back when a "
+                             "folder is downloaded.")
     parser.add_argument("--dest", required=True,
                         help="Where to build the tree. Becomes --dipser-root.")
     parser.add_argument("--models", default="models",
@@ -49,20 +52,52 @@ def parse_args():
     return parser.parse_args()
 
 
+def find_archive(zips_dir, activity, scratch):
+    """Locate one experiment archive, unwrapping a Drive bundle if needed.
+
+    Downloading a folder from Drive gives back one or more wrapper archives
+    rather than the files themselves, so the archive wanted here may be
+    sitting inside one of them. Any wrapper holding it is opened and the
+    inner archive pulled out once.
+    """
+    name = f"sampled_experiment_{activity}.zip"
+
+    direct = os.path.join(zips_dir, name)
+    if os.path.exists(direct):
+        return direct, False
+
+    pulled = os.path.join(scratch, name)
+    if os.path.exists(pulled):
+        return pulled, True
+
+    for wrapper in sorted(os.listdir(zips_dir)):
+        if not wrapper.endswith(".zip"):
+            continue
+        path = os.path.join(zips_dir, wrapper)
+        with zipfile.ZipFile(path) as archive:
+            inner = [n for n in archive.namelist() if os.path.basename(n) == name]
+            if not inner:
+                continue
+            print(f"    found {name} inside {wrapper}")
+            os.makedirs(scratch, exist_ok=True)
+            with archive.open(inner[0]) as source, open(pulled, "wb") as sink:
+                shutil.copyfileobj(source, sink)
+            return pulled, True
+
+    raise FileNotFoundError(
+        f"{name} is neither in {zips_dir} nor inside any archive there. "
+        "Download the sampled archives from Drive first."
+    )
+
+
 def unpack(zips_dir, dest, keep):
     """Unpack each experiment archive under its own experiment directory."""
     group = f"group_{config.DIPSER_GROUP}"
+    scratch = os.path.join(dest, "_unwrapped")
     total = 0
 
     for activity in config.ACTIVITIES:
-        name = f"sampled_experiment_{activity}.zip"
-        source = os.path.join(zips_dir, name)
-        if not os.path.exists(source):
-            raise FileNotFoundError(
-                f"{source} not found. Download the three sampled_*.zip files "
-                "from Drive into --zips first."
-            )
-
+        source, was_wrapped = find_archive(zips_dir, activity, scratch)
         target = os.path.join(dest, group, f"experiment_{activity}")
         os.makedirs(target, exist_ok=True)
         with zipfile.ZipFile(source) as archive:
@@ -71,24 +106,56 @@ def unpack(zips_dir, dest, keep):
         total += len(members)
         print(f"  experiment_{activity}: {len(members)} files -> {target}")
 
-        if not keep:
+        if not keep or was_wrapped:
+            # An archive pulled out of a Drive wrapper is a copy, so removing
+            # it costs nothing: the wrapper still holds the original.
             os.remove(source)
-            print(f"    removed {name}")
+    if os.path.isdir(scratch) and not os.listdir(scratch):
+        os.rmdir(scratch)
     return total
 
 
 def fetch_models(models_dir):
-    """Download the pose and face task files if they are not already there."""
+    """Download the pose and face task files if they are not already there.
+
+    A Python installed outside the system one often has no root certificates
+    of its own, so the certifi bundle is used when it is available. Without
+    it the download fails on certificate verification rather than on
+    anything to do with the file.
+    """
     os.makedirs(models_dir, exist_ok=True)
+
+    try:
+        import certifi
+        import ssl
+        context = ssl.create_default_context(cafile=certifi.where())
+        opener = urllib.request.build_opener(
+            urllib.request.HTTPSHandler(context=context)
+        )
+    except ImportError:
+        opener = urllib.request.build_opener()
+
     paths = {}
     for name, url in MODELS.items():
         path = os.path.join(models_dir, name)
         if os.path.exists(path) and os.path.getsize(path) > 0:
             print(f"  {name}: already here ({os.path.getsize(path) / 2**20:.1f} MB)")
-        else:
-            print(f"  {name}: downloading")
-            urllib.request.urlretrieve(url, path)
-            print(f"    {os.path.getsize(path) / 2**20:.1f} MB")
+            paths[name] = path
+            continue
+
+        print(f"  {name}: downloading")
+        try:
+            with opener.open(url) as response, open(path, "wb") as sink:
+                shutil.copyfileobj(response, sink)
+        except Exception as error:
+            if os.path.exists(path):
+                os.remove(path)
+            raise SystemExit(
+                f"Could not download {name}: {error}\n"
+                f"Fetch it by hand into {models_dir}:\n  curl -L -o "
+                f"{os.path.join(models_dir, name)} {url}"
+            )
+        print(f"    {os.path.getsize(path) / 2**20:.1f} MB")
         paths[name] = path
     return paths
 

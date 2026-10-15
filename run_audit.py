@@ -64,14 +64,17 @@ def report_sessions(sessions, order):
     camera dropped frames, which III-E says are flagged missing rather than
     filled from a neighbour.
     """
-    fps = [i["effective_fps"] for i in sessions.values()]
+    rates = [i["images_per_second"] for i in sessions.values()]
     bins = sum(i["bins"] for i in sessions.values())
     empty = sum(i["empty_bins"] for i in sessions.values())
     unlabelled = sum(i["dropped_for_no_label"] for i in sessions.values())
 
+    note = ("the camera rate; Table III says about "
+            f"{config.NOMINAL_FRAME_RATE}") if max(rates) > 2 else (
+        "the sampling rate, since this tree already holds only the "
+        "sampled frames")
     print(f"  sessions {len(sessions)}, "
-          f"effective fps {min(fps):.2f} to {max(fps):.2f} "
-          f"(Table III says about {config.NOMINAL_FRAME_RATE})")
+          f"{min(rates):.2f} to {max(rates):.2f} images per second, {note}")
     print(f"  bins {bins}, of which {empty} empty and left missing")
     if unlabelled:
         print(f"  {unlabelled} sampled frames had no rating at their second "
@@ -337,7 +340,10 @@ def main():
     report_sessions(sessions, order)
 
     starts = {key: info["start_clock"] for key, info in sessions.items()}
-    expert_ratings = dataset.expert_rating_table(layout, students, starts)
+    horizons = {key: info["last_second"] for key, info in sessions.items()}
+    expert_ratings = dataset.expert_rating_table(
+        layout, students, starts, horizons
+    )
 
     # Line 2.
     if not (args.pose_task and args.face_task):

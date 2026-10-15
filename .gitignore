@@ -3,3 +3,8 @@ __pycache__/
 .pytest_cache/
 outputs/
 *.task
+models/
+*.task
+DIPSER_sampled*.zip
+sampled_experiment_*.zip
+.DS_Store

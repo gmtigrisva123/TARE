@@ -23,7 +23,7 @@ NOMINAL_FRAME_RATE = 8.7
 
 ACTIVITIES = ("03", "05", "08")     # lecture, quiz on phones, robotics practice
 LECTURE_ACTIVITY = "03"             # the session the proxies of (14) are read from
-DIPSER_GROUP = "01"                 # assumption A6
+DIPSER_GROUP = "02"                 # assumption A6; see README on why not 01
 
 # --- (4), in-frame body scale ---------------------------------------------
 

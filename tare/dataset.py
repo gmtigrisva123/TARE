@@ -179,7 +179,8 @@ def _load_session(layout, student, activity):
     relative = [(clock - start, path) for clock, path in timed]
 
     kept, empty_bins, n_bins = _sample_bins(relative)
-    ratings = _load_ratings(layout, student, activity, start)
+    last_second = int(math.floor(relative[-1][0]))
+    ratings = _load_ratings(layout, student, activity, start, last_second)
 
     frames, unlabelled = [], 0
     for time_s, path in kept:
@@ -192,12 +193,16 @@ def _load_session(layout, student, activity):
     info = {
         "images": len(paths),
         "span_s": relative[-1][0],
-        "effective_fps": len(paths) / relative[-1][0] if relative[-1][0] else float("nan"),
+        # Images present divided by session length. On the release this is
+        # the camera rate; on a tree that has already been cut down to the
+        # sampled frames it is the sampling rate instead.
+        "images_per_second": len(paths) / relative[-1][0] if relative[-1][0] else float("nan"),
         "bins": n_bins,
         "empty_bins": len(empty_bins),
         "sampled": len(kept),
         "dropped_for_no_label": unlabelled,
         "start_clock": start,
+        "last_second": last_second,
         "n_experts": len(ratings),
     }
     return frames, start, info
@@ -224,13 +229,20 @@ def _sample_bins(relative):
     return kept, empty, n_bins
 
 
-def _load_ratings(layout, student, activity, session_start):
+def _load_ratings(layout, student, activity, session_start, last_second):
     """One rating per second for each of the four experts.
 
     The files hold change points, and a change point may carry only an
     emotion, so a record without an `attention` field leaves the rating
     where it was. Seconds are counted from the first image of the session,
     the same origin t_i uses.
+
+    The fill runs to the last second of the session rather than to the last
+    change point. An expert who never revises their rating writes one
+    record and nothing else, so stopping at the final change point would
+    leave the tail of the session unrated for every expert at once. One
+    labeler in the cohort does exactly that: a single entry at second zero
+    for a five-minute session.
     """
     paths = sorted(_rating_paths(layout, activity, student))
     paths = [p for p in paths if "self_labeling" not in os.path.basename(p)]
@@ -243,8 +255,8 @@ def _load_ratings(layout, student, activity, session_start):
         )
 
     series = [_read_change_points(path, session_start) for path in paths]
-    last_second = max(max(points) for points in series if points)
-    return [_fill_forward_then_back(points, last_second) for points in series]
+    horizon = max(last_second, max(max(points) for points in series))
+    return [_fill_forward_then_back(points, horizon) for points in series]
 
 
 def _read_change_points(path, session_start):
@@ -294,7 +306,7 @@ def _target_at(ratings, second):
     return float(np.mean(values))
 
 
-def expert_rating_table(layout, students, starts):
+def expert_rating_table(layout, students, starts, horizons):
     """Every expert rating per session, for B4 of (7).
 
     B4 compares one expert against the mean of the other three, so it needs
@@ -306,7 +318,8 @@ def expert_rating_table(layout, students, starts):
     for student in students:
         for activity in config.ACTIVITIES:
             table[(student, activity)] = _load_ratings(
-                layout, student, activity, starts[(student, activity)]
+                layout, student, activity,
+                starts[(student, activity)], horizons[(student, activity)],
             )
     return table
 
