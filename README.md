@@ -64,62 +64,70 @@ features. The extraction pass is cached, so a rerun of the audit does not
 repeat it; the ZOOM branches re-extract from warped images and are not
 cached, which is where the time goes.
 
+## What the real files settled
+
+The release was inspected before any of this was wired up, and four things
+Section III leaves open are now decided by the data rather than by a guess.
+
+**Which group.** Assumption A6 names the 16 students of "group 01". In the
+release, group_01 has 19 students with all three activities and group_03 has
+15, while **group_02 has exactly 16**, which is also the only group for which
+"all of them have a lecture session, so N_lec = 16" holds. `DIPSER_GROUP` is
+therefore `02`, and A6 should be corrected in the paper.
+
+**Which evaluator to drop.** Each session has five label files: four named
+`labeler_*` and one named `self_labeling`. `rating_glob` matches only the
+first kind, so the self-assessment that III-E excludes never reaches (1).
+The labeler numbers are not stable across students, one being rated by
+labelers 01 to 04 and another by 01, 02, 03 and 05, so the four are taken as
+whichever files are present.
+
+**How time is read.** Image names carry a wall-clock timestamp,
+`HH_MM_SS_fraction.png`, so t_i and the 1.5 s bins come from the names. The
+camera drops frames, which is why a five-minute session holds between 2167
+and 2410 images, an effective 7.2 to 8.1 frames per second against a 100 ms
+nominal interval. Those dropped stretches are exactly the empty bins III-E
+says to flag as missing, and a fixed rate would both hide them and place
+frames in the wrong bins.
+
+**Which session is first.** The three activities were filmed as 03 at
+12:41, then 08 at 12:46, then 05 at 13:13, so the numeric order is not the
+order of recording. Equation (6) wants the earliest session, which is
+activity 03, and the order is derived from the timestamps rather than
+supplied in a file.
+
 ## What you still have to supply
 
-**The dataset.** It is not on this machine. DIPSER is CC BY 4.0 and is
-requested through SciDB, with the reading scripts at
-`https://bitbucket.org/rovitlib/dipser/`. Unzip it anywhere and pass the
-directory as `--dipser-root`; nothing has to sit inside this project.
-
-The release is organised as `group<N>/experiment<M>/subject<K>.zip`, and each
-subject archive holds `images`, `watch_sensors`, `labels` and `metadata`.
-The glob defaults in `tare/config.DipserLayout` follow that, with
-`activity_pattern` controlling whether the directory reads `experiment3` or
-`experiment03`. Unzip the subject archives before running, then check with
-`--describe-only`.
-
-DIPSER experiments 3, 5 and 8 are the lecture, the lecture test and the
-robotics experimentation, which are the three activities III-E names.
-
-**The recording order.** Stage H2 calibrates on the first 60 s of "the
-earliest session in time", so `--session-order` needs a CSV with columns
-`student`, `activity`, `start`. Frame numbers restart each session and
-cannot supply this, and guessing it would change which frames form C_s, so
-the loader refuses to run without it.
-
-**Which DIPSER group is "group 01".** Assumption A6 names the 16 students of
-group 01, and III-F says DIPSER records post-secondary students. In the
-DIPSER release the 16-student group is the master's-degree group, while the
-other two groups hold up to 20 students each and are early childhood
-education. `config.DIPSER_GROUP` is set to `01` as the paper writes it, so
-if the release numbers that master's group differently, change that one
-value and say so in the paper.
-
-**Which evaluator is the self-assessment.** DIPSER stores five evaluations
-per student, four experts and one self-evaluation, and (1) averages the four
-experts only. The loader reads four files and refuses a partial set rather
-than averaging whatever it finds, so run `--inspect-labels` to see the five
-and set `self_evaluation_key` before trusting the target.
+**The data itself.** Unpack each `subject_NN.zip` into a directory named
+after it, so the tree reads
+`group_02/experiment_03/subject_02/images/...`, and pass the root as
+`--dipser-root`. Check with `--describe-only` before a full run.
 
 **Confirmation of the four pending definitions.** Section III-B2 leaves the
 face center, shoulder tilt, neck tilt and ear asymmetry as `[PENDING]`.
-`tare/geometry.py` implements the anatomical descriptions you supplied, and
-each function records which description it came from and why it is written
-the way it is. Two constraints from the paper narrowed the choices: an angle
-has to survive a scaling and a translation for Proposition 1 to hold, and
-the face center has to be a function of the eleven keypoints for Remark 3 to
-be the algebraic identity it claims to be. Read those four docstrings and
-confirm they say what you meant.
+`tare/geometry.py` implements the anatomical descriptions supplied by the
+author, and each function records which description it came from and why it
+is written that way. Two constraints from the paper narrowed the choices: an
+angle has to survive a scaling and a translation for Proposition 1 to hold,
+and the face center has to be a function of the eleven keypoints for
+Remark 3 to be the algebraic identity it claims to be. Read those four
+docstrings and confirm they say what you meant.
 
-## A number to reconcile
+## Things to reconcile in the paper
 
-Table III gives the desk camera as 640x480 at about 8.7 frames per second,
-and the DIPSER paper gives its individual cameras as 640x480 at about 10 fps.
-`config.FRAME_RATE` holds 8.7, as Table III says, and `_frame_time` converts
-a frame number to t_i with it. The rate only affects which frame falls in
-which 1.5 s bin, so a wrong value shifts the sampling slightly rather than
-breaking it. Check it against the real recordings and settle the paper and
-the config on one figure.
+**A6 names the wrong group.** See above. One word.
+
+**Table III gives 8.7 frames per second.** The sessions measure 7.2 to 8.1,
+and the figure is descriptive rather than a parameter, since nothing
+computes with it. `config.NOMINAL_FRAME_RATE` records it and
+`report_sessions` prints the measured range next to it.
+
+**B4 assumes a fixed panel of four experts.** Equation (7) writes y^(r) as
+though expert r were one person across the cohort. The labeler numbering
+changes between students, so position r means the r-th labeler file of that
+session. The quantity B4 measures, one rater against the mean of the other
+three, is still well defined per frame, but the wording implies more than
+the data holds.
 
 ## Three readings worth knowing about
 
@@ -188,8 +196,6 @@ Proposition 1 does not rely on it, so implementing it would mean choosing a
 focal length and a camera distance the paper never gives. Remark 1 reads the
 five residual mechanisms off it, and those are read from the measurements
 rather than computed.
-
-## Not implemented, on purpose
 
 III-E keeps the five-vote majority label as a secondary target and then
 marks the secondary analysis as `[PENDING]`, noting that no measure in

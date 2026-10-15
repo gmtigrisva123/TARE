@@ -12,7 +12,6 @@ Usage:
     python run_audit.py --dipser-root PATH \
         --pose-task pose_landmarker.task \
         --face-task face_landmarker.task \
-        --session-order sessions.csv
 """
 
 import argparse
@@ -29,13 +28,12 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Run the TARE audit pipeline.")
     parser.add_argument("--dipser-root", required=True,
                         help="Root of the DIPSER release.")
-    parser.add_argument("--pose-task", required=True,
-                        help="Path to MediaPipe pose_landmarker.task.")
-    parser.add_argument("--face-task", required=True,
+    parser.add_argument("--pose-task",
+                        help="Path to MediaPipe pose_landmarker.task. "
+                             "Needed for every run except --survey, "
+                             "--describe-only and --inspect-labels.")
+    parser.add_argument("--face-task",
                         help="Path to MediaPipe face_landmarker.task.")
-    parser.add_argument("--session-order",
-                        help="CSV with columns student, activity, start. "
-                             "Equation (6) needs the recording order.")
     parser.add_argument("--frame-glob", help="Override the frame pattern.")
     parser.add_argument("--rating-glob", help="Override the rating pattern.")
     parser.add_argument("--out-dir", default="outputs")
@@ -44,6 +42,10 @@ def parse_args():
                         help="Where the extraction pass is cached.")
     parser.add_argument("--describe-only", action="store_true",
                         help="Report what the layout matches and stop.")
+    parser.add_argument("--survey", action="store_true",
+                        help="Walk the release and print the directory names "
+                             "that are actually there, then stop. Run this "
+                             "first; it guesses nothing.")
     parser.add_argument("--inspect-labels", action="store_true",
                         help="Print the structure of one label file and stop. "
                              "DIPSER stores five evaluations per student and "
@@ -53,6 +55,30 @@ def parse_args():
                         help="Leave out the branches that rerun the extractor "
                              "on warped images. Marks the run as partial.")
     return parser.parse_args()
+
+
+def report_sessions(sessions, order):
+    """Print what the sampling of III-E actually produced.
+
+    The empty-bin count is worth seeing: those are the stretches where the
+    camera dropped frames, which III-E says are flagged missing rather than
+    filled from a neighbour.
+    """
+    fps = [i["effective_fps"] for i in sessions.values()]
+    bins = sum(i["bins"] for i in sessions.values())
+    empty = sum(i["empty_bins"] for i in sessions.values())
+    unlabelled = sum(i["dropped_for_no_label"] for i in sessions.values())
+
+    print(f"  sessions {len(sessions)}, "
+          f"effective fps {min(fps):.2f} to {max(fps):.2f} "
+          f"(Table III says about {config.NOMINAL_FRAME_RATE})")
+    print(f"  bins {bins}, of which {empty} empty and left missing")
+    if unlabelled:
+        print(f"  {unlabelled} sampled frames had no rating at their second "
+              "and are not scored")
+
+    first = {activities[0] for activities in order.values()}
+    print(f"  earliest session per student, used by (6): {sorted(first)}")
 
 
 def read_image(path):
@@ -276,8 +302,10 @@ def main():
         layout.frame_glob = args.frame_glob
     if args.rating_glob:
         layout.rating_glob = args.rating_glob
-    if args.session_order:
-        layout.session_order_file = args.session_order
+
+    if args.survey:
+        dataset.survey(args.dipser_root)
+        return
 
     if args.describe_only:
         report = dataset.describe_layout(layout)
@@ -299,17 +327,25 @@ def main():
         dataset.inspect_labels(layout)
         return
 
-    # Lines 1 and 3: sampling and the target.
-    students, frames = dataset.load_cohort(layout)
+    # Lines 1 and 3: sampling and the target. The session order comes back
+    # with the frames, because both are read from the image timestamps.
+    students, frames, order, sessions = dataset.load_cohort(layout)
     print(f"{len(students)} students, {len(frames)} scored frames.")
     if len(students) != 16:
         print(f"Note: assumption A6 names 16 students and the layout gave "
               f"{len(students)}. Check the layout before reading the numbers.")
+    report_sessions(sessions, order)
 
-    order = dataset.session_order(layout, students)
-    expert_ratings = dataset.expert_rating_table(layout, students)
+    starts = {key: info["start_clock"] for key, info in sessions.items()}
+    expert_ratings = dataset.expert_rating_table(layout, students, starts)
 
     # Line 2.
+    if not (args.pose_task and args.face_task):
+        raise SystemExit(
+            "--pose-task and --face-task are required for a full run. "
+            "Download pose_landmarker.task and face_landmarker.task from the "
+            "MediaPipe model index."
+        )
     extractor = landmarks.LandmarkExtractor(args.pose_task, args.face_task)
     extract_all(frames, extractor, args.cache)
 
