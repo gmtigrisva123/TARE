@@ -426,10 +426,22 @@ def run_rq3(results, frames, students, order, args):
     the next phase rather than starting over.
     """
     state = load_checkpoint(args.checkpoint)
-    started = time.time()
+    batch = {"started": None, "last_total": None}
 
     def progress(done, total):
-        rate = done / max(time.time() - started, 1)
+        """Report the rate of the batch in hand, not of the whole phase.
+
+        A batch is one grid setting, one zoom level or one replicate. Timing
+        from the start of the phase instead made the figure fall steadily
+        and the estimate meaningless, since the clock kept running across
+        the model fits between batches.
+        """
+        if batch["last_total"] != total or done <= 2000:
+            batch["started"] = time.time()
+            batch["last_total"] = total
+            batch["offset"] = done
+        elapsed = max(time.time() - batch["started"], 1e-6)
+        rate = max(done - batch.get("offset", 0), 1) / elapsed
         print(f"      {done}/{total} frames, {rate:.1f}/s, "
               f"{(total - done) / max(rate, 0.01) / 60:.0f} min left",
               flush=True)
