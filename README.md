@@ -13,7 +13,7 @@
   <a href="requirements.txt"><img src="https://img.shields.io/badge/MediaPipe-0.10.14-00A4A6?logo=google&logoColor=white" alt="MediaPipe 0.10.14"></a>
   <a href="requirements.txt"><img src="https://img.shields.io/badge/scikit--learn-1.9.1-F7931E?logo=scikitlearn&logoColor=white" alt="scikit-learn 1.9.1"></a>
   <a href="requirements.txt"><img src="https://img.shields.io/badge/NumPy-2.4.6-013243?logo=numpy&logoColor=white" alt="NumPy 2.4.6"></a>
-  <a href="tests/"><img src="https://img.shields.io/badge/Tests-47%20passed-brightgreen?logo=pytest&logoColor=white" alt="47 tests passed"></a>
+  <a href="tests/"><img src="https://img.shields.io/badge/Tests-48%20passed-brightgreen?logo=pytest&logoColor=white" alt="48 tests passed"></a>
   <a href="#-what-the-real-files-settled"><img src="https://img.shields.io/badge/Dataset-DIPSER%20group__02-E9B23C" alt="DIPSER group_02"></a>
   <a href="https://github.com/gmtigrisva123/TEAR"><img src="https://img.shields.io/badge/GitHub-TEAR-181717?logo=github" alt="GitHub"></a>
 </p>
@@ -149,7 +149,7 @@ whichever files are present.
 **How time is read.** Image names carry a wall-clock timestamp,
 `HH_MM_SS_fraction.png`, so t_i and the 1.5 s bins come from the names. The
 camera drops frames, which is why a five-minute session holds between 2167
-and 2410 images, an effective 7.2 to 8.1 frames per second against a 100 ms
+and 2498 images, an effective 7.2 to 8.3 frames per second against a 100 ms
 nominal interval. Those dropped stretches are exactly the empty bins III-E
 says to flag as missing, and a fixed rate would both hide them and place
 frames in the wrong bins.

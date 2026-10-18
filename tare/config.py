@@ -14,12 +14,12 @@ SAMPLING_BIN_SECONDS = 1.5          # first frame of each bin is kept
 IMAGE_WIDTH = 640                   # W
 IMAGE_HEIGHT = 480                  # H
 
-# Table III records the desk camera as running at about 8.7 frames per
-# second. Nothing computes with that figure: image file names carry a
+# Table III records the desk camera on a nominal 100 ms interval, which is
+# the figure below. Nothing computes with it: image file names carry a
 # wall-clock timestamp, so t_i and the 1.5 s bins are read from the names.
-# The measured rate also varies by session, between 7.2 and 8.1 frames per
-# second on the sessions inspected, because the camera drops frames.
-NOMINAL_FRAME_RATE = 8.7
+# The measured rate varies by session, between 7.2 and 8.3 frames per
+# second, because the camera drops frames.
+NOMINAL_FRAME_RATE = 10.0
 
 ACTIVITIES = ("03", "05", "08")     # lecture, quiz on phones, robotics practice
 LECTURE_ACTIVITY = "03"             # the session the proxies of (14) are read from
