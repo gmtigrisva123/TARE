@@ -15,7 +15,7 @@
   <a href="requirements.txt"><img src="https://img.shields.io/badge/NumPy-2.4.6-013243?logo=numpy&logoColor=white" alt="NumPy 2.4.6"></a>
   <a href="tests/"><img src="https://img.shields.io/badge/Tests-48%20passed-brightgreen?logo=pytest&logoColor=white" alt="48 tests passed"></a>
   <a href="#-what-the-real-files-settled"><img src="https://img.shields.io/badge/Dataset-DIPSER%20group__02-E9B23C" alt="DIPSER group_02"></a>
-  <a href="https://github.com/gmtigrisva123/TEAR"><img src="https://img.shields.io/badge/GitHub-TEAR-181717?logo=github" alt="GitHub"></a>
+  <a href="https://github.com/gmtigrisva123/TARE"><img src="https://img.shields.io/badge/GitHub-TARE-181717?logo=github" alt="GitHub"></a>
 </p>
 
 <p align="center">
