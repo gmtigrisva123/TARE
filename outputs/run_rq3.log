@@ -1,0 +1,332 @@
+16 students, 9393 scored frames.
+  sessions 48, 0.63 to 0.67 images per second, the sampling rate, since this tree already holds only the sampled frames
+  bins 9597, of which 204 empty and left missing
+  earliest session per student, used by (6): ['03']
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1792105979.605761  335682 gl_context.cc:357] GL version: 2.1 (2.1 INTEL-18.8.16), renderer: Intel(R) Iris(TM) Graphics 540
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+W0000 00:00:1792105980.790211  336828 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1792105980.867748  336825 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+I0000 00:00:1792105980.873952  335682 gl_context.cc:357] GL version: 2.1 (2.1 INTEL-18.8.16), renderer: Intel(R) Iris(TM) Graphics 540
+W0000 00:00:1792105980.874780  335682 face_landmarker_graph.cc:174] Sets FaceBlendshapesGraph acceleration to xnnpack by default.
+W0000 00:00:1792105980.894721  336888 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1792105980.921108  336888 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+Read cached landmarks for 9393 frames.
+  image-level ZOOM
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1792130033.220208  401849 gl_context.cc:357] GL version: 2.1 (2.1 INTEL-18.8.16), renderer: Intel(R) Iris(TM) Graphics 540
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1792130033.220233  401848 gl_context.cc:357] GL version: 2.1 (2.1 INTEL-18.8.16), renderer: Intel(R) Iris(TM) Graphics 540
+INFO: INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+Created TensorFlow Lite XNNPACK delegate for CPU.
+W0000 00:00:1792130033.867474  401940 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1792130033.867508  401937 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1792130034.046025  401940 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1792130034.046131  401936 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+I0000 00:00:1792130034.058170  401849 gl_context.cc:357] GL version: 2.1 (2.1 INTEL-18.8.16), renderer: Intel(R) Iris(TM) Graphics 540
+I0000 00:00:1792130034.058261  401848 gl_context.cc:357] GL version: 2.1 (2.1 INTEL-18.8.16), renderer: Intel(R) Iris(TM) Graphics 540
+W0000 00:00:1792130034.079357  401848 face_landmarker_graph.cc:174] Sets FaceBlendshapesGraph acceleration to xnnpack by default.
+W0000 00:00:1792130034.079357  401849 face_landmarker_graph.cc:174] Sets FaceBlendshapesGraph acceleration to xnnpack by default.
+W0000 00:00:1792130034.170895  401948 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1792130034.171136  401950 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1792130034.227715  401950 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1792130034.229080  401949 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+/Users/macbook/Documents/TEAR/.venv/lib/python3.11/site-packages/google/protobuf/symbol_database.py:55: UserWarning: SymbolDatabase.GetPrototype() is deprecated. Please use message_factory.GetMessageClass() instead. SymbolDatabase.GetPrototype() will be removed soon.
+  warnings.warn('SymbolDatabase.GetPrototype() is deprecated. Please '
+/Users/macbook/Documents/TEAR/.venv/lib/python3.11/site-packages/google/protobuf/symbol_database.py:55: UserWarning: SymbolDatabase.GetPrototype() is deprecated. Please use message_factory.GetMessageClass() instead. SymbolDatabase.GetPrototype() will be removed soon.
+  warnings.warn('SymbolDatabase.GetPrototype() is deprecated. Please '
+  dose-response
+      2000/8907 frames, 2.8/s, 42 min left
+      4000/8907 frames, 4.5/s, 18 min left
+      6000/8907 frames, 5.9/s, 8 min left
+      8000/8907 frames, 6.9/s, 2 min left
+    zoom 0.5120 done
+      2000/8907 frames, 1.5/s, 78 min left
+      4000/8907 frames, 2.5/s, 33 min left
+      6000/8907 frames, 3.1/s, 16 min left
+      8000/8907 frames, 3.6/s, 4 min left
+    zoom 0.6400 done
+      2000/8907 frames, 0.8/s, 140 min left
+      4000/8907 frames, 1.5/s, 53 min left
+      6000/8907 frames, 2.2/s, 22 min left
+      8000/8907 frames, 2.8/s, 5 min left
+    zoom 0.8000 done
+      2000/8907 frames, 0.7/s, 174 min left
+      4000/8907 frames, 1.3/s, 64 min left
+      6000/8907 frames, 1.8/s, 26 min left
+      8000/8907 frames, 2.3/s, 6 min left
+    zoom 1.2500 done
+      2000/8907 frames, 0.6/s, 206 min left
+      4000/8907 frames, 1.1/s, 75 min left
+      6000/8907 frames, 1.6/s, 31 min left
+      8000/8907 frames, 2.1/s, 7 min left
+    zoom 1.5625 done
+      2000/8907 frames, 0.5/s, 232 min left
+      4000/8907 frames, 1.0/s, 85 min left
+      6000/8907 frames, 1.4/s, 34 min left
+      8000/8907 frames, 1.8/s, 8 min left
+    zoom 1.9531 done
+  per-student scaling, from replicate 0
+      2000/8907 frames, 0.4/s, 258 min left
+      4000/8907 frames, 0.9/s, 94 min left
+      6000/8907 frames, 1.3/s, 38 min left
+      8000/8907 frames, 1.7/s, 9 min left
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+    replicate 1/20 done
+      2000/8907 frames, 0.4/s, 285 min left
+      4000/8907 frames, 0.8/s, 104 min left
+      6000/8907 frames, 1.2/s, 42 min left
+      8000/8907 frames, 1.5/s, 10 min left
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+    replicate 2/20 done
+      2000/8907 frames, 0.4/s, 312 min left
+      4000/8907 frames, 0.7/s, 113 min left
+      6000/8907 frames, 1.1/s, 46 min left
+      8000/8907 frames, 1.4/s, 11 min left
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+    replicate 3/20 done
+      2000/8907 frames, 0.3/s, 340 min left
+      4000/8907 frames, 0.7/s, 123 min left
+      6000/8907 frames, 1.0/s, 49 min left
+      8000/8907 frames, 1.3/s, 12 min left
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+    replicate 4/20 done
+      2000/8907 frames, 0.3/s, 367 min left
+      4000/8907 frames, 0.6/s, 133 min left
+      6000/8907 frames, 0.9/s, 53 min left
+      8000/8907 frames, 1.2/s, 13 min left
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+    replicate 5/20 done
+      2000/8907 frames, 0.3/s, 395 min left
+      4000/8907 frames, 0.6/s, 142 min left
+      6000/8907 frames, 0.8/s, 57 min left
+      8000/8907 frames, 1.1/s, 14 min left
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+    replicate 6/20 done
+      2000/8907 frames, 0.3/s, 422 min left
+      4000/8907 frames, 0.5/s, 152 min left
+      6000/8907 frames, 0.8/s, 61 min left
+      8000/8907 frames, 1.0/s, 14 min left
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+    replicate 7/20 done
+      2000/8907 frames, 0.3/s, 450 min left
+      4000/8907 frames, 0.5/s, 162 min left
+      6000/8907 frames, 0.7/s, 65 min left
+      8000/8907 frames, 1.0/s, 15 min left
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+    replicate 8/20 done
+      2000/8907 frames, 0.2/s, 476 min left
+      4000/8907 frames, 0.5/s, 171 min left
+      6000/8907 frames, 0.7/s, 68 min left
+      8000/8907 frames, 0.9/s, 16 min left
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+    replicate 9/20 done
+      2000/8907 frames, 0.2/s, 502 min left
+      4000/8907 frames, 0.5/s, 181 min left
+      6000/8907 frames, 0.7/s, 72 min left
+      8000/8907 frames, 0.9/s, 17 min left
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+    replicate 10/20 done
+      2000/8907 frames, 0.2/s, 528 min left
+      4000/8907 frames, 0.4/s, 190 min left
+      6000/8907 frames, 0.6/s, 76 min left
+      8000/8907 frames, 0.8/s, 18 min left
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+    replicate 11/20 done
+      2000/8907 frames, 0.2/s, 563 min left
+(eval):5: command not found: setsid
+16 students, 9393 scored frames.
+  sessions 48, 0.63 to 0.67 images per second, the sampling rate, since this tree already holds only the sampled frames
+  bins 9597, of which 204 empty and left missing
+  earliest session per student, used by (6): ['03']
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1792141986.877356   11858 gl_context.cc:357] GL version: 2.1 (2.1 INTEL-18.8.16), renderer: Intel(R) Iris(TM) Graphics 540
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+W0000 00:00:1792141988.291362   12168 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1792141988.459634   12168 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+I0000 00:00:1792141988.470684   11858 gl_context.cc:357] GL version: 2.1 (2.1 INTEL-18.8.16), renderer: Intel(R) Iris(TM) Graphics 540
+W0000 00:00:1792141988.475602   11858 face_landmarker_graph.cc:174] Sets FaceBlendshapesGraph acceleration to xnnpack by default.
+W0000 00:00:1792141988.532587   12175 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1792141988.575755   12177 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+Read cached landmarks for 9393 frames.
+  resuming from outputs/rq3_progress.pkl: ['dose_response', 'replicates', 'zoom_image']
+  image-level ZOOM: already done
+  dose-response: already done
+  per-student scaling, from replicate 11
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1792143565.985351   28388 gl_context.cc:357] GL version: 2.1 (2.1 INTEL-18.8.16), renderer: Intel(R) Iris(TM) Graphics 540
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1792143565.985386   28387 gl_context.cc:357] GL version: 2.1 (2.1 INTEL-18.8.16), renderer: Intel(R) Iris(TM) Graphics 540
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+W0000 00:00:1792143566.257054   28502 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1792143566.268449   28499 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1792143566.332255   28500 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+I0000 00:00:1792143566.352644   28387 gl_context.cc:357] GL version: 2.1 (2.1 INTEL-18.8.16), renderer: Intel(R) Iris(TM) Graphics 540
+W0000 00:00:1792143566.354252   28387 face_landmarker_graph.cc:174] Sets FaceBlendshapesGraph acceleration to xnnpack by default.
+W0000 00:00:1792143566.358942   28498 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+I0000 00:00:1792143566.365588   28388 gl_context.cc:357] GL version: 2.1 (2.1 INTEL-18.8.16), renderer: Intel(R) Iris(TM) Graphics 540
+W0000 00:00:1792143566.366153   28388 face_landmarker_graph.cc:174] Sets FaceBlendshapesGraph acceleration to xnnpack by default.
+W0000 00:00:1792143566.369315   28509 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1792143566.381668   28513 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1792143566.406882   28506 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1792143566.408631   28510 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+/Users/macbook/Documents/TEAR/.venv/lib/python3.11/site-packages/google/protobuf/symbol_database.py:55: UserWarning: SymbolDatabase.GetPrototype() is deprecated. Please use message_factory.GetMessageClass() instead. SymbolDatabase.GetPrototype() will be removed soon.
+  warnings.warn('SymbolDatabase.GetPrototype() is deprecated. Please '
+/Users/macbook/Documents/TEAR/.venv/lib/python3.11/site-packages/google/protobuf/symbol_database.py:55: UserWarning: SymbolDatabase.GetPrototype() is deprecated. Please use message_factory.GetMessageClass() instead. SymbolDatabase.GetPrototype() will be removed soon.
+  warnings.warn('SymbolDatabase.GetPrototype() is deprecated. Please '
+      2000/8907 frames, 381300.4/s, 0 min left
+      4000/8907 frames, 20.6/s, 4 min left
+      6000/8907 frames, 21.3/s, 2 min left
+      8000/8907 frames, 21.3/s, 1 min left
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+    replicate 12/20 done
+      2000/8907 frames, 524288.0/s, 0 min left
+      4000/8907 frames, 20.2/s, 4 min left
+      6000/8907 frames, 20.8/s, 2 min left
+      8000/8907 frames, 20.4/s, 1 min left
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+    replicate 13/20 done
+      2000/8907 frames, 466033.8/s, 0 min left
+      4000/8907 frames, 20.1/s, 4 min left
+      6000/8907 frames, 20.0/s, 2 min left
+      8000/8907 frames, 20.3/s, 1 min left
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+    replicate 14/20 done
+      2000/8907 frames, 466033.8/s, 0 min left
+      4000/8907 frames, 19.9/s, 4 min left
+      6000/8907 frames, 20.0/s, 2 min left
+      8000/8907 frames, 19.9/s, 1 min left
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+    replicate 15/20 done
+      2000/8907 frames, 466033.8/s, 0 min left
+      4000/8907 frames, 19.4/s, 4 min left
+      6000/8907 frames, 19.7/s, 2 min left
+      8000/8907 frames, 20.1/s, 1 min left
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+    replicate 16/20 done
+      2000/8907 frames, 599186.3/s, 0 min left
+      4000/8907 frames, 19.7/s, 4 min left
+      6000/8907 frames, 19.8/s, 2 min left
+      8000/8907 frames, 20.2/s, 1 min left
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+    replicate 17/20 done
+      2000/8907 frames, 1000000.0/s, 0 min left
+      4000/8907 frames, 19.7/s, 4 min left
+      6000/8907 frames, 19.8/s, 2 min left
+      8000/8907 frames, 19.8/s, 1 min left
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+    replicate 18/20 done
+      2000/8907 frames, 1000000.0/s, 0 min left
+      4000/8907 frames, 19.9/s, 4 min left
+      6000/8907 frames, 20.2/s, 2 min left
+      8000/8907 frames, 19.9/s, 1 min left
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+    replicate 19/20 done
+      2000/8907 frames, 524288.0/s, 0 min left
+      4000/8907 frames, 19.6/s, 4 min left
+      6000/8907 frames, 20.2/s, 2 min left
+      8000/8907 frames, 20.1/s, 1 min left
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+/Users/macbook/Documents/TEAR/tare/audit.py:26: RuntimeWarning: Mean of empty slice
+  return np.nanmean(np.abs(predictions - targets[None, :]), axis=0)
+    replicate 20/20 done
+Wrote outputs/audit_gb.json

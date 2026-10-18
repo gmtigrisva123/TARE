@@ -1,0 +1,159 @@
+regressor gb   16 students   9393 frames   complete=True
+detection rate by activity (III-B1 reports 98.7% lecture, 78.4% robotics)
+  activity 03: 99.5%
+  activity 05: 98.5%
+  activity 08: 86.5%
+branch of (4) that set L_i: shoulder 46.6%, eye 53.4%
+========================================================================
+ERROR (RQ1): mean absolute error, student-level
+========================================================================
+reference predictors
+  B1 training mean                0.3636
+  B2 per-activity mean            0.2753
+  B3 per-session mean (ceiling)   0.1885
+  B4 one expert vs other three  0.6594
+
+variants
+  RAW         mean 0.3707   max 0.5910   spread 0.3729
+              per activity  03=0.3198  05=0.3537  08=0.4371
+  TARE-S      mean 0.3383   max 0.4859   spread 0.2501   gain over RAW +0.0324
+              per activity  03=0.2731  05=0.3049  08=0.4349
+  TARE-FULL   mean 0.3295   max 0.5485   spread 0.3089   gain over RAW +0.0412
+              per activity  03=0.2085  05=0.3245  08=0.4529
+
+inference on the mean gain
+  TARE-S      +0.0324  [+0.003, +0.064]   sign-flip p=0.05516   unchanged=False
+  TARE-FULL   +0.0412  [+0.013, +0.073]   sign-flip p=0.01443   unchanged=False
+
+========================================================================
+GAP (RQ2): equalized odds across apparent-scale groups
+========================================================================
+
+proxy P_iod: tertiles hold g1=6, g2=5, g3=5 students
+  RAW         EO_reg 0.1640  [+0.036, +0.342]   EO_bin(2.5) 0.0240  [+0.000, +0.048]
+              rho +0.074  [-0.361, +0.515]
+  TARE-S      EO_reg 0.2406  [+0.050, +0.320]   EO_bin(2.5) 0.0099  [+0.000, +0.016]
+              rho +0.047  [-0.445, +0.506]   dEO_reg -0.0766   dEO_bin +0.0141   drho +0.026
+  TARE-FULL   EO_reg 0.1760  [+0.019, +0.394]   EO_bin(2.5) 0.0090  [+0.000, +0.015]
+              rho +0.276  [-0.227, +0.710]   dEO_reg -0.0120   dEO_bin +0.0150   drho -0.203
+  cell sizes (label class, group) -> frames/students
+              1|1    770 frames  6 students
+              1|2    664 frames  5 students
+              1|3    403 frames  5 students
+              2|1   2309 frames  6 students
+              2|2   2127 frames  5 students
+              2|3   1958 frames  5 students
+              3|1    450 frames  6 students
+              3|2    137 frames  5 students
+              3|3    575 frames  5 students
+  sensitivity thresholds
+    RAW         tau=2.0: 0.0000  tau=2.5: 0.0240  tau=3.0: 0.1566
+    TARE-S      tau=2.0: 0.0000  tau=2.5: 0.0099  tau=3.0: 0.3378
+    TARE-FULL   tau=2.0: 0.0000  tau=2.5: 0.0090  tau=3.0: 0.2474
+
+proxy P_sh: tertiles hold g1=6, g2=5, g3=5 students
+  RAW         EO_reg 0.2004  [+0.046, +0.368]   EO_bin(2.5) 0.0240  [+0.000, +0.049]
+              rho +0.315  [-0.105, +0.642]
+  TARE-S      EO_reg 0.2228  [+0.029, +0.350]   EO_bin(2.5) 0.0095  [+0.000, +0.015]
+              rho +0.341  [-0.113, +0.663]   dEO_reg -0.0224   dEO_bin +0.0145   drho -0.026
+  TARE-FULL   EO_reg 0.2607  [+0.017, +0.477]   EO_bin(2.5) 0.0052  [+0.000, +0.012]
+              rho +0.618  [+0.296, +0.784]   dEO_reg -0.0603   dEO_bin +0.0188   drho -0.303
+  cell sizes (label class, group) -> frames/students
+              1|1    707 frames  6 students
+              1|2    727 frames  5 students
+              1|3    403 frames  5 students
+              2|1   2578 frames  6 students
+              2|2   1858 frames  5 students
+              2|3   1958 frames  5 students
+              3|1    245 frames  6 students
+              3|2    342 frames  5 students
+              3|3    575 frames  5 students
+  sensitivity thresholds
+    RAW         tau=2.0: 0.0000  tau=2.5: 0.0240  tau=3.0: 0.3541
+    TARE-S      tau=2.0: 0.0000  tau=2.5: 0.0095  tau=3.0: 0.2704
+    TARE-FULL   tau=2.0: 0.0000  tau=2.5: 0.0052  tau=3.0: 0.1631
+
+========================================================================
+LEAK (RQ2): can a model recover apparent scale from the features
+========================================================================
+Descriptive by III-C6e, not used for any test.
+
+proxy P_iod
+  RAW         R2 -0.010  [-0.580, +0.208]   Xi 0.248  [+0.192, +0.427]
+  TARE-S      R2 +0.309  [-0.162, +0.516]   Xi 0.319  [+0.216, +0.418]
+  TARE-FULL   R2 +0.037  [-0.390, +0.154]   Xi 0.074  [+0.075, +0.184]
+
+proxy P_sh
+  RAW         R2 +0.491  [-0.800, +0.643]   Xi 0.290  [+0.210, +0.427]
+  TARE-S      R2 -0.116  [-1.438, +0.058]   Xi 0.225  [+0.144, +0.351]
+  TARE-FULL   R2 -0.404  [-2.016, -0.247]   Xi 0.077  [+0.073, +0.182]
+
+========================================================================
+ZOOM, keypoint level: the unit test of Remark 3
+========================================================================
+Proposition 1 makes the TARE features identical before and after (17), so
+the drift is zero in exact arithmetic. What survives in float is a feature
+difference near machine epsilon, which a boosted tree can turn into a discrete
+jump when it lands on the wrong side of a split. A residual of about 1e-4 is
+that effect; anything near the RAW figure would mean the invariance is broken.
+  RAW         largest drift over the grid 0.377484
+  TARE-S      largest drift over the grid 0.000026  float noise
+  TARE-FULL   largest drift over the grid 0.000002  float noise
+
+========================================================================
+ZOOM, image level (RQ3): drift after re-extracting landmarks
+========================================================================
+  RAW         c=0.5120,delta=+0        drift 0.2489   flip 0.0054
+  RAW         c=0.6400,delta=+0        drift 0.2462   flip 0.0055
+  RAW         c=0.8000,delta=+0        drift 0.1936   flip 0.0053
+  RAW         c=1.0000,delta=+40       drift 0.1646   flip 0.0077
+  RAW         c=1.0000,delta=-40       drift 0.1764   flip 0.0053
+  RAW         c=1.2500,delta=+0        drift 0.1901   flip 0.0095
+  RAW         c=1.5625,delta=+0        drift 0.2680   flip 0.0067
+  RAW         c=1.9531,delta=+0        drift 0.3871   flip 0.0067
+  TARE-S      c=0.5120,delta=+0        drift 0.2818   flip 0.0022
+  TARE-S      c=0.6400,delta=+0        drift 0.2628   flip 0.0020
+  TARE-S      c=0.8000,delta=+0        drift 0.1562   flip 0.0024
+  TARE-S      c=1.0000,delta=+40       drift 0.1069   flip 0.0024
+  TARE-S      c=1.0000,delta=-40       drift 0.0939   flip 0.0034
+  TARE-S      c=1.2500,delta=+0        drift 0.2918   flip 0.0015
+  TARE-S      c=1.5625,delta=+0        drift 0.4829   flip 0.0017
+  TARE-S      c=1.9531,delta=+0        drift 0.5689   flip 0.0012
+  TARE-FULL   c=0.5120,delta=+0        drift 0.2754   flip 0.0005
+  TARE-FULL   c=0.6400,delta=+0        drift 0.2380   flip 0.0020
+  TARE-FULL   c=0.8000,delta=+0        drift 0.1537   flip 0.0024
+  TARE-FULL   c=1.0000,delta=+40       drift 0.0904   flip 0.0019
+  TARE-FULL   c=1.0000,delta=-40       drift 0.0777   flip 0.0015
+  TARE-FULL   c=1.2500,delta=+0        drift 0.3215   flip 0.0020
+  TARE-FULL   c=1.5625,delta=+0        drift 0.5268   flip 0.0022
+  TARE-FULL   c=1.9531,delta=+0        drift 0.6346   flip 0.0024
+
+dose-response, Gamma(c) = gamma_0 + gamma_1 ln c
+  RAW         slope +0.0157  [+0.006, +0.027]
+  TARE-S      slope +0.0176  [+0.007, +0.027]
+  TARE-FULL   slope +0.0116  [+0.003, +0.020]
+
+independent per-student zoom, distribution over replicates
+  RAW         e_spread mean 0.3663  [0.3218, 0.4261]  n=20
+              P_iod rho mean +0.089  [-0.098, +0.383]
+              P_sh rho mean +0.209  [-0.047, +0.529]
+  TARE-S      e_spread mean 0.2631  [0.2359, 0.2917]  n=20
+              P_iod rho mean +0.020  [-0.272, +0.388]
+              P_sh rho mean +0.204  [-0.096, +0.504]
+  TARE-FULL   e_spread mean 0.3291  [0.3159, 0.3489]  n=20
+              P_iod rho mean +0.088  [-0.175, +0.297]
+              P_sh rho mean +0.197  [-0.109, +0.442]
+
+========================================================================
+Holm correction inside the primary family of ten comparisons
+========================================================================
+   1. TARE-FULL:ERROR                    p=0.01443  <= 0.00500        
+   2. TARE-S:ERROR                       p=0.05516  <= 0.00556        
+   3. TARE-S:EO_bin(2.5):P_sh            p=0.18300  <= 0.00625        
+   4. TARE-S:EO_bin(2.5):P_iod           p=0.24300  <= 0.00714        
+   5. TARE-FULL:EO_bin(2.5):P_sh         p=0.28500  <= 0.00833        
+   6. TARE-FULL:EO_bin(2.5):P_iod        p=0.30200  <= 0.01000        
+   7. TARE-S:EO_reg:P_sh                 p=0.49450  <= 0.01250        
+   8. TARE-FULL:EO_reg:P_iod             p=0.52400  <= 0.01667        
+   9. TARE-S:EO_reg:P_iod                p=0.57500  <= 0.02500        
+  10. TARE-FULL:EO_reg:P_sh              p=0.58500  <= 0.05000        

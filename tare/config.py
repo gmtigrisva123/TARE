@@ -13,11 +13,17 @@ from dataclasses import dataclass
 SAMPLING_BIN_SECONDS = 1.5          # first frame of each bin is kept
 IMAGE_WIDTH = 640                   # W
 IMAGE_HEIGHT = 480                  # H
-FRAME_RATE = 8.7                    # about 8.7 frames per second
+
+# Table III records the desk camera on a nominal 100 ms interval, which is
+# the figure below. Nothing computes with it: image file names carry a
+# wall-clock timestamp, so t_i and the 1.5 s bins are read from the names.
+# The measured rate varies by session, between 7.2 and 8.3 frames per
+# second, because the camera drops frames.
+NOMINAL_FRAME_RATE = 10.0
 
 ACTIVITIES = ("03", "05", "08")     # lecture, quiz on phones, robotics practice
 LECTURE_ACTIVITY = "03"             # the session the proxies of (14) are read from
-DIPSER_GROUP = "01"                 # assumption A6
+DIPSER_GROUP = "02"                 # assumption A6; see README on why not 01
 
 # --- (4), in-frame body scale ---------------------------------------------
 
@@ -95,29 +101,27 @@ def zoom_levels():
 class DipserLayout:
     """Where the DIPSER files sit and how to read them.
 
-    The DIPSER release is organised as group / experiment / subject, with
-    each subject archive holding images, watch_sensors, labels and metadata.
-    The defaults below follow that. They are still settings rather than
-    facts, because the release has to be unzipped before the leaf paths are
-    certain, so run `tare.dataset.describe_layout` first and adjust until
-    the per-student counts look right.
+    The release is organised as group_NN / experiment_NN / subject_NN, and
+    each subject archive unpacks to `images`, `labels`, `metadata` and
+    `watch_sensors`. The defaults below were read off the real files, so
+    they should need no change as long as each archive is unpacked into a
+    directory named after it. Run `tare.dataset.describe_layout` to confirm.
 
-    Experiment numbers 3, 5 and 8 of DIPSER are the lecture, the lecture
-    test and the robotics experimentation, which are the three activities
-    III-E names. `activity_pattern` controls the zero padding, because the
-    paper writes them as 03, 05 and 08 while the release directories may not
-    pad.
+    Experiments 03, 05 and 08 are the lecture, the lecture test and the
+    robotics experimentation, which are the three activities III-E names.
+
+    `rating_glob` matches `labeler_*.json` only, which leaves out
+    `self_labeling.json`, the student self-assessment that (1) excludes.
+    The labeler numbers differ between students, so the four files are
+    taken as whichever are present rather than by fixed names.
     """
 
     root: str
-    frame_glob: str = "group{group}/experiment{activity}/subject{student}/images/*"
-    rating_glob: str = "group{group}/experiment{activity}/subject{student}/labels/*.json"
-    activity_pattern: str = "{:d}"   # "{:d}" gives 3; "{:02d}" gives 03
-    group_pattern: str = "{:d}"
-    session_order_file: str = ""     # CSV with the start time of each session
-    n_experts: int = 4               # four experts; the self-evaluation is not read
-    expert_key: str = ""             # set once the label JSON has been inspected
-    self_evaluation_key: str = ""    # the evaluator that (1) must leave out
+    frame_glob: str = "group_{group}/experiment_{activity}/subject_{student}/images/*.png"
+    rating_glob: str = "group_{group}/experiment_{activity}/subject_{student}/labels/labeler_*.json"
+    activity_pattern: str = "{:02d}"   # the release writes experiment_03
+    group_pattern: str = "{:02d}"      # and group_02
+    n_experts: int = 4                 # self_labeling.json is excluded by the glob
 
     def activity_dir(self, activity):
         return self.activity_pattern.format(int(activity))

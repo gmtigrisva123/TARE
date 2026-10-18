@@ -12,30 +12,30 @@ Usage:
     python run_audit.py --dipser-root PATH \
         --pose-task pose_landmarker.task \
         --face-task face_landmarker.task \
-        --session-order sessions.csv
 """
 
 import argparse
 import json
 import os
 import pickle
+import time
 
 import numpy as np
 
-from tare import audit, config, dataset, features, landmarks, models, stats, zoom
+from tare import (audit, config, dataset, features, landmarks, models,
+                  parallel, stats, zoom)
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Run the TARE audit pipeline.")
     parser.add_argument("--dipser-root", required=True,
                         help="Root of the DIPSER release.")
-    parser.add_argument("--pose-task", required=True,
-                        help="Path to MediaPipe pose_landmarker.task.")
-    parser.add_argument("--face-task", required=True,
+    parser.add_argument("--pose-task",
+                        help="Path to MediaPipe pose_landmarker.task. "
+                             "Needed for every run except --survey, "
+                             "--describe-only and --inspect-labels.")
+    parser.add_argument("--face-task",
                         help="Path to MediaPipe face_landmarker.task.")
-    parser.add_argument("--session-order",
-                        help="CSV with columns student, activity, start. "
-                             "Equation (6) needs the recording order.")
     parser.add_argument("--frame-glob", help="Override the frame pattern.")
     parser.add_argument("--rating-glob", help="Override the rating pattern.")
     parser.add_argument("--out-dir", default="outputs")
@@ -44,15 +44,53 @@ def parse_args():
                         help="Where the extraction pass is cached.")
     parser.add_argument("--describe-only", action="store_true",
                         help="Report what the layout matches and stop.")
+    parser.add_argument("--survey", action="store_true",
+                        help="Walk the release and print the directory names "
+                             "that are actually there, then stop. Run this "
+                             "first; it guesses nothing.")
     parser.add_argument("--inspect-labels", action="store_true",
                         help="Print the structure of one label file and stop. "
                              "DIPSER stores five evaluations per student and "
                              "(1) averages the four experts only, so run this "
                              "before trusting the target.")
+    parser.add_argument("--workers", type=int, default=1,
+                        help="Processes for the ZOOM re-extraction. The "
+                             "parameters do not change; only how many frames "
+                             "are warped at once.")
+    parser.add_argument("--checkpoint", default="outputs/rq3_progress.pkl",
+                        help="Where RQ3 saves its progress, so an interrupted "
+                             "run resumes instead of starting over.")
     parser.add_argument("--skip-image-zoom", action="store_true",
                         help="Leave out the branches that rerun the extractor "
                              "on warped images. Marks the run as partial.")
     return parser.parse_args()
+
+
+def report_sessions(sessions, order):
+    """Print what the sampling of III-E actually produced.
+
+    The empty-bin count is worth seeing: those are the stretches where the
+    camera dropped frames, which III-E says are flagged missing rather than
+    filled from a neighbour.
+    """
+    rates = [i["images_per_second"] for i in sessions.values()]
+    bins = sum(i["bins"] for i in sessions.values())
+    empty = sum(i["empty_bins"] for i in sessions.values())
+    unlabelled = sum(i["dropped_for_no_label"] for i in sessions.values())
+
+    note = ("the camera rate; Table III says about "
+            f"{config.NOMINAL_FRAME_RATE}") if max(rates) > 2 else (
+        "the sampling rate, since this tree already holds only the "
+        "sampled frames")
+    print(f"  sessions {len(sessions)}, "
+          f"{min(rates):.2f} to {max(rates):.2f} images per second, {note}")
+    print(f"  bins {bins}, of which {empty} empty and left missing")
+    if unlabelled:
+        print(f"  {unlabelled} sampled frames had no rating at their second "
+              "and are not scored")
+
+    first = {activities[0] for activities in order.values()}
+    print(f"  earliest session per student, used by (6): {sorted(first)}")
 
 
 def read_image(path):
@@ -276,8 +314,10 @@ def main():
         layout.frame_glob = args.frame_glob
     if args.rating_glob:
         layout.rating_glob = args.rating_glob
-    if args.session_order:
-        layout.session_order_file = args.session_order
+
+    if args.survey:
+        dataset.survey(args.dipser_root)
+        return
 
     if args.describe_only:
         report = dataset.describe_layout(layout)
@@ -299,17 +339,28 @@ def main():
         dataset.inspect_labels(layout)
         return
 
-    # Lines 1 and 3: sampling and the target.
-    students, frames = dataset.load_cohort(layout)
+    # Lines 1 and 3: sampling and the target. The session order comes back
+    # with the frames, because both are read from the image timestamps.
+    students, frames, order, sessions = dataset.load_cohort(layout)
     print(f"{len(students)} students, {len(frames)} scored frames.")
     if len(students) != 16:
         print(f"Note: assumption A6 names 16 students and the layout gave "
               f"{len(students)}. Check the layout before reading the numbers.")
+    report_sessions(sessions, order)
 
-    order = dataset.session_order(layout, students)
-    expert_ratings = dataset.expert_rating_table(layout, students)
+    starts = {key: info["start_clock"] for key, info in sessions.items()}
+    horizons = {key: info["last_second"] for key, info in sessions.items()}
+    expert_ratings = dataset.expert_rating_table(
+        layout, students, starts, horizons
+    )
 
     # Line 2.
+    if not (args.pose_task and args.face_task):
+        raise SystemExit(
+            "--pose-task and --face-task are required for a full run. "
+            "Download pose_landmarker.task and face_landmarker.task from the "
+            "MediaPipe model index."
+        )
     extractor = landmarks.LandmarkExtractor(args.pose_task, args.face_task)
     extract_all(frames, extractor, args.cache)
 
@@ -330,27 +381,7 @@ def main():
     )
 
     if not args.skip_image_zoom:
-        # Line 16.
-        results["zoom_image"] = _serialise_zoom(
-            zoom.image_level_drift(
-                frames, students, order, args.regressor, extractor, read_image
-            )
-        )
-        # Lines 17 to 19.
-        curve = zoom.dose_response(
-            frames, students, order, args.regressor, extractor, read_image
-        )
-        results["dose_response"] = {"curve": curve["curve"], "fit": curve["fit"]}
-        cohort = zoom.perturbed_cohort(
-            frames, students, order, args.regressor, extractor, read_image,
-            results["proxies"],
-        )
-        # The distribution over b is what III-C8 reports; the per-replicate
-        # student errors stay out of the JSON to keep it readable.
-        results["perturbed_cohort"] = cohort["distribution"]
-        results["perturbed_cohort_factors"] = [
-            r["factors"] for r in cohort["replicates"]
-        ]
+        run_rq3(results, frames, students, order, args)
     else:
         print("Image-level ZOOM and per-student scaling were skipped. "
               "This run does not cover RQ3.")
@@ -363,8 +394,120 @@ def main():
 
     path = os.path.join(args.out_dir, f"audit_{args.regressor}.json")
     with open(path, "w") as handle:
-        json.dump(results, handle, indent=2, default=_jsonable)
+        json.dump(_stringify_keys(results), handle, indent=2, default=_jsonable)
     print(f"Wrote {path}")
+
+
+def load_checkpoint(path):
+    if path and os.path.exists(path):
+        with open(path, "rb") as handle:
+            saved = pickle.load(handle)
+        print(f"  resuming from {path}: {sorted(saved)}")
+        return saved
+    return {}
+
+
+def save_checkpoint(path, state):
+    if not path:
+        return
+    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+    with open(path + ".tmp", "wb") as handle:
+        pickle.dump(state, handle)
+    os.replace(path + ".tmp", path)
+
+
+def run_rq3(results, frames, students, order, args):
+    """Lines 16 to 19: the two ZOOM protocols that answer RQ3.
+
+    This is where the time goes. Every frame is warped and the landmark
+    extractor is run again, which at the Table III parameters is about a
+    quarter of a million extractions, so the work is spread over processes
+    and each phase is saved as it finishes. An interrupted run picks up at
+    the next phase rather than starting over.
+    """
+    state = load_checkpoint(args.checkpoint)
+    batch = {"started": None, "last_total": None}
+
+    def progress(done, total):
+        """Report the rate of the batch in hand, not of the whole phase.
+
+        A batch is one grid setting, one zoom level or one replicate. Timing
+        from the start of the phase instead made the figure fall steadily
+        and the estimate meaningless, since the clock kept running across
+        the model fits between batches.
+        """
+        if batch["last_total"] != total or done <= 2000:
+            batch["started"] = time.time()
+            batch["last_total"] = total
+            batch["offset"] = done
+        elapsed = max(time.time() - batch["started"], 1e-6)
+        rate = max(done - batch.get("offset", 0), 1) / elapsed
+        print(f"      {done}/{total} frames, {rate:.1f}/s, "
+              f"{(total - done) / max(rate, 0.01) / 60:.0f} min left",
+              flush=True)
+
+    with parallel.BatchExtractor(args.pose_task, args.face_task,
+                                 workers=args.workers,
+                                 progress=progress) as batch_extract:
+        # Line 16.
+        if "zoom_image" in state:
+            print("  image-level ZOOM: already done")
+        else:
+            print("  image-level ZOOM", flush=True)
+            state["zoom_image"] = _serialise_zoom(zoom.image_level_drift(
+                frames, students, order, args.regressor, batch_extract
+            ))
+            save_checkpoint(args.checkpoint, state)
+
+        # Lines 17 to 19, first with one common factor for the curve of (20).
+        if "dose_response" in state:
+            print("  dose-response: already done")
+        else:
+            print("  dose-response", flush=True)
+
+            def on_level(c, curves, per_student, baseline):
+                print(f"    zoom {c:.4f} done", flush=True)
+                save_checkpoint(args.checkpoint, dict(
+                    state, dose_partial={"curve": curves}
+                ))
+
+            curve = zoom.dose_response(
+                frames, students, order, args.regressor, batch_extract,
+                on_level=on_level,
+            )
+            state["dose_response"] = {"curve": curve["curve"],
+                                      "fit": curve["fit"]}
+            state.pop("dose_partial", None)
+            save_checkpoint(args.checkpoint, state)
+
+        # Then with an independent factor per student.
+        done_replicates = state.get("replicates", [])
+        if len(done_replicates) >= config.N_REPLICATES:
+            print(f"  per-student scaling: all {config.N_REPLICATES} replicates done")
+        else:
+            print(f"  per-student scaling, from replicate "
+                  f"{len(done_replicates)}", flush=True)
+
+            def on_replicate(b, entry):
+                done_replicates.append(entry)
+                state["replicates"] = done_replicates
+                save_checkpoint(args.checkpoint, state)
+                print(f"    replicate {b + 1}/{config.N_REPLICATES} done",
+                      flush=True)
+
+            zoom.perturbed_cohort(
+                frames, students, order, args.regressor, batch_extract,
+                results["proxies"], start_at=len(done_replicates),
+                on_replicate=on_replicate,
+            )
+
+    results["zoom_image"] = state["zoom_image"]
+    results["dose_response"] = state["dose_response"]
+    replicates = state.get("replicates", [])
+    results["perturbed_cohort"] = zoom.replicate_distribution(
+        replicates, results["proxies"]
+    )
+    results["perturbed_cohort_factors"] = [r["factors"] for r in replicates]
 
 
 def _serialise_zoom(table):
@@ -372,6 +515,27 @@ def _serialise_zoom(table):
     for (variant, c, delta), value in table.items():
         out.setdefault(variant, {})[f"c={c:.4f},delta={delta:+.0f}"] = value
     return out
+
+
+def _stringify_keys(obj):
+    """Make a structure writable as JSON.
+
+    The equalized-odds tables are keyed by the (label class, group) cell, and
+    JSON only takes string keys, so a tuple key becomes its parts joined by a
+    bar: the cell (3, 1) is written "3|1". Everything else is left alone.
+    """
+    if isinstance(obj, dict):
+        out = {}
+        for key, value in obj.items():
+            if isinstance(key, tuple):
+                key = "|".join(str(part) for part in key)
+            elif not isinstance(key, (str, int, float, bool)) and key is not None:
+                key = str(key)
+            out[key] = _stringify_keys(value)
+        return out
+    if isinstance(obj, (list, tuple)):
+        return [_stringify_keys(item) for item in obj]
+    return obj
 
 
 def _jsonable(obj):
