@@ -1,0 +1,16 @@
+16 students, 9393 scored frames.
+  sessions 48, 0.63 to 0.67 images per second, the sampling rate, since this tree already holds only the sampled frames
+  bins 9597, of which 204 empty and left missing
+  earliest session per student, used by (6): ['03']
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1792074470.371455  217146 gl_context.cc:357] GL version: 2.1 (2.1 INTEL-18.8.16), renderer: Intel(R) Iris(TM) Graphics 540
+INFO: Created TensorFlow Lite XNNPACK delegate for CPU.
+W0000 00:00:1792074470.865277  217268 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1792074470.954194  217267 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+I0000 00:00:1792074470.960585  217146 gl_context.cc:357] GL version: 2.1 (2.1 INTEL-18.8.16), renderer: Intel(R) Iris(TM) Graphics 540
+W0000 00:00:1792074470.963404  217146 face_landmarker_graph.cc:174] Sets FaceBlendshapesGraph acceleration to xnnpack by default.
+W0000 00:00:1792074471.000223  217279 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+W0000 00:00:1792074471.033404  217277 inference_feedback_manager.cc:114] Feedback manager requires a model with a single signature inference. Disabling support for feedback tensors.
+Read cached landmarks for 9393 frames.
+Image-level ZOOM and per-student scaling were skipped. This run does not cover RQ3.
+Wrote outputs/audit_gb.json
